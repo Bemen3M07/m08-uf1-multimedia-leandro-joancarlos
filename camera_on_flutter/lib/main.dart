@@ -118,14 +118,12 @@ class CameraScreenState extends State<CameraScreen> {
 
       final image = await _controller.takePicture();
 
-      // Verificar si el widget aún está montado antes de usar el BuildContext
       if (!mounted) return;
 
       setState(() {
         _lastImagePath = image.path;
       });
 
-      // Mostrar el cuadro de diálogo si el widget sigue montado
       if (mounted) {
         showDialog(
           context: context,
@@ -142,7 +140,6 @@ class CameraScreenState extends State<CameraScreen> {
         );
       }
     } catch (e) {
-      // Usa un sistema de logging en lugar de print
       debugPrint("Error al tomar la foto: $e");
     }
   }
@@ -184,17 +181,34 @@ class CameraScreenState extends State<CameraScreen> {
         future: _initializeControllerFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            return Column(
+            return Stack(
               children: [
-                Expanded(child: CameraPreview(_controller)),
+                // Ajuste para que CameraPreview ocupe toda la pantalla
+                Positioned.fill(
+                  child: FittedBox(
+                    fit: BoxFit.cover,
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height,
+                      child: CameraPreview(_controller),
+                    ),
+                  ),
+                ),
+                // Mostrar imagen si existe
                 if (_lastImagePath != null)
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
+                  Positioned(
+                    bottom: 16,
+                    left: 16,
                     child: Image.asset(_lastImagePath!),
                   ),
-                FloatingActionButton(
-                  onPressed: _takePicture,
-                  child: const Icon(Icons.camera),
+                // Botón flotante
+                Positioned(
+                  bottom: 32,
+                  right: 16,
+                  child: FloatingActionButton(
+                    onPressed: _takePicture,
+                    child: const Icon(Icons.camera),
+                  ),
                 ),
               ],
             );
