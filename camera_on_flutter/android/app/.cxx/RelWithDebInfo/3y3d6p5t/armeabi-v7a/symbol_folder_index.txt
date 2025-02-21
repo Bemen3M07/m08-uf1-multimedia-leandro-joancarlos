@@ -1,0 +1,1 @@
+C:\Users\Leandro\Documents\GitHub\m08-uf1-multimedia-leandro-joancarlos\camera_on_flutter\build\app\intermediates\cxx\RelWithDebInfo\3y3d6p5t\obj\armeabi-v7a

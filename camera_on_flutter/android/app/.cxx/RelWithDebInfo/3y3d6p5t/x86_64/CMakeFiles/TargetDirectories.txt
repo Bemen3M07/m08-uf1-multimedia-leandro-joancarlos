@@ -1,0 +1,2 @@
+C:/Users/Leandro/Documents/GitHub/m08-uf1-multimedia-leandro-joancarlos/camera_on_flutter/android/app/.cxx/RelWithDebInfo/3y3d6p5t/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/Leandro/Documents/GitHub/m08-uf1-multimedia-leandro-joancarlos/camera_on_flutter/android/app/.cxx/RelWithDebInfo/3y3d6p5t/x86_64/CMakeFiles/rebuild_cache.dir
