@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'dart:io'; // Importa la librería para trabajar con File.
 
 void main() {
   runApp(const MyApp());
@@ -26,6 +27,9 @@ class MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
   late List<CameraDescription> _cameras;
 
+  // Lista para almacenar las rutas de las imágenes capturadas
+  List<String> _capturedImages = [];
+
   @override
   void initState() {
     super.initState();
@@ -40,10 +44,7 @@ class MainScreenState extends State<MainScreen> {
     });
   }
 
-  final List<Widget> _screens = [
-    const GalleryScreen(),
-    const MusicPlayerScreen(),
-  ];
+  final List<Widget> _screens = [];
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +52,12 @@ class MainScreenState extends State<MainScreen> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    _screens.insert(0, CameraScreen(cameras: _cameras));
+    // Asegurarse de que la pantalla de la cámara esté al principio
+    if (_screens.isEmpty) {
+      _screens.add(
+          CameraScreen(cameras: _cameras, onImageCaptured: _onImageCaptured));
+    }
+    _screens.add(GalleryScreen(capturedImages: _capturedImages));
 
     return Scaffold(
       body: _screens[_selectedIndex],
@@ -72,11 +78,21 @@ class MainScreenState extends State<MainScreen> {
       _selectedIndex = index;
     });
   }
+
+  // Callback para agregar imágenes capturadas
+  void _onImageCaptured(String imagePath) {
+    setState(() {
+      _capturedImages.add(imagePath);
+    });
+  }
 }
 
 class CameraScreen extends StatefulWidget {
   final List<CameraDescription> cameras;
-  const CameraScreen({super.key, required this.cameras});
+  final Function(String) onImageCaptured;
+
+  const CameraScreen(
+      {super.key, required this.cameras, required this.onImageCaptured});
 
   @override
   CameraScreenState createState() => CameraScreenState();
@@ -123,6 +139,9 @@ class CameraScreenState extends State<CameraScreen> {
       setState(() {
         _lastImagePath = image.path;
       });
+
+      widget.onImageCaptured(
+          image.path); // Llamar al callback para actualizar la galería
 
       if (mounted) {
         showDialog(
@@ -194,13 +213,6 @@ class CameraScreenState extends State<CameraScreen> {
                     ),
                   ),
                 ),
-                // Mostrar imagen si existe
-                if (_lastImagePath != null)
-                  Positioned(
-                    bottom: 16,
-                    left: 16,
-                    child: Image.asset(_lastImagePath!),
-                  ),
                 // Botón flotante
                 Positioned(
                   bottom: 32,
@@ -222,23 +234,32 @@ class CameraScreenState extends State<CameraScreen> {
 }
 
 class GalleryScreen extends StatelessWidget {
-  const GalleryScreen({super.key});
+  final List<String> capturedImages;
+
+  const GalleryScreen({super.key, required this.capturedImages});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Picture'), centerTitle: true),
-      body: const Center(child: Text('Gallery Screen')),
-    );
-  }
-}
-
-class MusicPlayerScreen extends StatelessWidget {
-  const MusicPlayerScreen({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Music Player'), centerTitle: true),
-      body: const Center(child: Text('Music Player Screen')),
+      body: capturedImages.isEmpty
+          ? const Center(child: Text('No hay fotos capturadas'))
+          : GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                childAspectRatio: 1,
+              ),
+              itemCount: capturedImages.length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: Image.file(
+                    File(capturedImages[index]),
+                    fit: BoxFit.cover,
+                  ),
+                );
+              },
+            ),
     );
   }
 }
