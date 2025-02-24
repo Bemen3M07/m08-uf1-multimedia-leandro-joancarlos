@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'dart:io'; // Importa la librería para trabajar con File.
+import 'package:just_audio/just_audio.dart';
 
 void main() {
   runApp(const MyApp());
@@ -56,8 +57,9 @@ class MainScreenState extends State<MainScreen> {
     if (_screens.isEmpty) {
       _screens.add(
           CameraScreen(cameras: _cameras, onImageCaptured: _onImageCaptured));
+      _screens.add(GalleryScreen(capturedImages: _capturedImages));
+      _screens.add(const MusicPlayerScreen()); // Add MusicPlayerScreen here
     }
-    _screens.add(GalleryScreen(capturedImages: _capturedImages));
 
     return Scaffold(
       body: _screens[_selectedIndex],
@@ -260,6 +262,85 @@ class GalleryScreen extends StatelessWidget {
                 );
               },
             ),
+    );
+  }
+}
+
+class MusicPlayerScreen extends StatefulWidget {
+  const MusicPlayerScreen({super.key});
+
+  @override
+  MusicPlayerScreenState createState() => MusicPlayerScreenState();
+}
+
+class MusicPlayerScreenState extends State<MusicPlayerScreen> {
+  final AudioPlayer _audioPlayer = AudioPlayer();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  // Método para reproducir el audio
+  Future<void> _playAudio() async {
+    try {
+      await _audioPlayer.setAsset('assets/audio.mp3'); // Load the audio asset
+      _audioPlayer.play(); // Play the audio
+    } catch (e) {
+      print("Error playing audio: $e");
+    }
+  }
+
+  // Método para detener el audio
+  Future<void> _stopAudio() async {
+    await _audioPlayer.stop();
+  }
+
+  // Método para cambiar la velocidad de reproducción
+  Future<void> _setPlaybackRate(double rate) async {
+    _audioPlayer.setSpeed(rate); // Cambia la velocidad
+  }
+
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Music Player'),
+        centerTitle: true,
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            // Botón para reproducir
+            ElevatedButton(
+              onPressed: _playAudio,
+              child: const Text('Play'),
+            ),
+            // Botón para detener
+            ElevatedButton(
+              onPressed: _stopAudio,
+              child: const Text('Stop'),
+            ),
+            // Botón para aumentar la velocidad
+            ElevatedButton(
+              onPressed: () => _setPlaybackRate(1.5), // Aumenta la velocidad
+              child: const Text('Increase Speed'),
+            ),
+            // Botón para disminuir la velocidad
+            ElevatedButton(
+              onPressed: () => _setPlaybackRate(0.5), // Disminuye la velocidad
+              child: const Text('Decrease Speed'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

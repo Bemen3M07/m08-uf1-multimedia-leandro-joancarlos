@@ -10,6 +10,7 @@ dependencies:
   flutter:
     sdk: flutter 
   camera: ^0.10.0+1
+  just_audio: ^0.9.46
   
 dev_dependencies:
   flutter_test:
@@ -18,3 +19,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/audio.mp3
